@@ -27,6 +27,7 @@ import tensorflow_text as text
 from tensorflow import keras
 
 
+
 #------------------------------------------------------------------------------
 #       Data Preperation
 #------------------------------------------------------------------------------
@@ -103,28 +104,45 @@ def dataframe_to_dataset(dataframe):
     ds = ds.shuffle(buffer_size=len(dataframe))
     return ds
 
+def preprocess_image_from_path(image_path):
+    
+    resize = (128, 128)
+        
+    try: 
+        image_string = tf.io.read_file(image_path)
+        image_decoded = tf.image.decode_jpeg(image_string, 3)
+        image = tf.image.resize(image_decoded, resize)
+    except:
+        print("Error Processing Image")
+        
+    return image
+
+
 def prepare_dataset(dataframe):
     batch_size = 32
     auto = tf.data.AUTOTUNE
     
     ds = dataframe_to_dataset(dataframe)
-    ds = ds.map(lambda x: preprocess_image_from_path(x))
+    ds = ds.map(lambda x, y: preprocess_image_from_path(x))
     ds = ds.batch(batch_size).prefetch(auto)
     return ds
 
 # # cleaned and prepared train and test
-# train_ds = prepare_dataset(train_df)
+train_ds = prepare_dataset(train_df)
 test_ds  = prepare_dataset(test_df)
 
-# # View Dataset (DS)
-list(test_ds.as_numpy_iterator())
-# #list(train_ds.as_numpy_iterator())
+# # # View Dataset (DS)
+# list(test_ds.as_numpy_iterator())
+# # #list(train_ds.as_numpy_iterator())
 
-for element in test_ds:
-    print(type(element))
-    print(element)
+# for element in test_ds:
+#     print(type(element))
+#     print(element)
 
 
+#------------------------------------------------------------------------------
+#  Build Model
+#------------------------------------------------------------------------------
 
 
 
